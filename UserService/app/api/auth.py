@@ -1,10 +1,6 @@
 from fastapi import APIRouter
 
-router = APIRouter(prefix="/users", tags=["users"])
-
-@router.post("/")
-async def create_user():
-    return []
+router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/")
 async def login(user_id: int):
