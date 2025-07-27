@@ -1,0 +1,20 @@
+on:
+  push:
+    branches:
+      - main
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd MicroServices/
+            docker-compose pull
+            docker-compose up -d
