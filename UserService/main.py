@@ -1,13 +1,17 @@
 from fastapi import FastAPI
 
-app = FastAPI()
+from app.api import users, auth
+from app.core.config import settings
 
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    version=settings.PROJECT_VERSION,
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+)
+
+app.include_router(users.router, prefix=settings.API_V1_STR)
+app.include_router(auth.router, prefix=settings.API_V1_STR)
 
 @app.get("/")
-def read_root():
-    return {"Hello": "World", "Autodeploy_test_one_more": True}
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str | None = None):
-    return {"item_id": item_id, "q": q}
+async def root():
+    return {"message": "Hello World"}
