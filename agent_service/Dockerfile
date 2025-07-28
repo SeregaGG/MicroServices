@@ -6,6 +6,8 @@ WORKDIR /agent_service
 
 COPY ./requirements.txt /agent_service/requirements.txt
 
+RUN apt-get update && \
+    apt-get install -y ffmpeg
 
 RUN pip install --no-cache-dir --upgrade -r /agent_service/requirements.txt
 

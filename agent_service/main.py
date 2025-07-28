@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from  app.api import agent
+from app.api import agent
 
 from app.core.config import settings
 
