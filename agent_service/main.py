@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 
+from  app.api import agent
+
 from app.core.config import settings
 
 app = FastAPI(
@@ -8,8 +10,7 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
 )
 
-app.include_router(users.router, prefix=settings.API_V1_STR)
-app.include_router(auth.router, prefix=settings.API_V1_STR)
+app.include_router(agent.router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 async def root():
