@@ -22,7 +22,7 @@ load_dotenv()
 
 
 giga = GigaChat(
-    model="GigaChat-Pro",
+    model="GigaChat-Lite",
     verify_ssl_certs=False,
     credentials=os.getenv('GIGA_KEY')
 )
