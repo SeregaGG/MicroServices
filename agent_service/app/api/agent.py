@@ -1,7 +1,7 @@
 import io
 import uuid
 from datetime import date
-from typing import Optional
+from typing import Optional, Tuple
 
 from fastapi import APIRouter, File, UploadFile, HTTPException, Response, Cookie
 from pydub import AudioSegment
@@ -30,10 +30,13 @@ giga = GigaChat(
 local_storage = dict()
 
 class Vacation(BaseModel):
-    start_date: str = Field(description='Начало отпуска в формате d.m.y')
-    end_date: str = Field(description='Конец оптуска в формате d.m.y')
+    start_date: str = Field(description='Начало отпуска строго в формате d.m.y')
+    end_date: str = Field(description='Конец оптуска строго в формате d.m.y')
 
 class ParseResult(BaseModel):
+    """
+    Схема для распаршеных дат
+    """
     start_date: date = Field(description='Начало отпуска')
     end_date: date = Field(description='Конец оптуска')
 
@@ -44,18 +47,15 @@ few_shot_examples = [
         "params": {"start_date": '13.08.2025', "end_date": '25.08.2025'},
     }
 ]
-@giga_tool(few_shot_examples=few_shot_examples)
+@giga_tool(few_shot_examples=few_shot_examples, response_format="content_and_artifact")
 def parse_date_from_string(
     vacation: Vacation
-):
+) -> Tuple[str, ParseResult]:
     """
     Функция для парсинга даты начала отпуска и даты конца отпуска
     Args:
-        vacation:
-    Returns:
-
+        vacation: даты всегда в формате d.m.y - если чего-то не хватает, то ставятся заглушки
     """
-    print(vacation)
 
     start_day, start_month, start_year = vacation.start_date.split('.')
     end_day, end_month, end_year = vacation.end_date.split('.')
@@ -68,8 +68,7 @@ def parse_date_from_string(
         end_year = 2025
     start_date = date(start_year, int(start_month), int(start_day))
     end_date = date(end_year, int(end_month), int(end_day))
-    print(local_storage)
-    return ParseResult(start_date=start_date, end_date=end_date)
+    return "Обработано", ParseResult(start_date=start_date, end_date=end_date)
 
 
 functions = [parse_date_from_string]
@@ -78,8 +77,10 @@ agent_executor = create_react_agent(giga_with_functions,
                                     functions,
                                     checkpointer=MemorySaver(), recursion_limit=100,
                                     prompt="Ты бот для оформления отпусков. "
-                                           "Твоя основная задача узнать у пользователя даты отпуска и распарсить их в формат d.m.y - строго такой формат!"
-                                           "Если год не указан, то попроси уточнить.")
+                                           "Твоя основная задача узнать у пользователя даты отпуска и представить их в формат d.m.y - ты должен всегда строго соблюдать такой формат! "
+                                           "Если нет части, то забивай их заглушками - например 01.07.y"
+                                           "Если год не указан, то попроси уточнить.",
+                                    response_format=ParseResult)
 
 @router.post("/start")
 async def dialog_start(response: Response):
@@ -114,11 +115,9 @@ async def upload_audio_file(audio_file: UploadFile = File(...), thread_id: Optio
             config = {"configurable": {"thread_id": thread_id}}
 
             resp = agent_executor.invoke({"messages": [HumanMessage(content=text)]}, config=config)
-            start_date, end_date = resp['messages'][-2].content.replace("datetime.date", "date").split(') ')
+            result = resp['messages'][-2].artefact
 
-            start_date = eval(f"{start_date.replace('start_date=', '')})")
-            end_date = eval(f"{end_date.replace('end_date=', '')}")
-            result = ParseResult(start_date=start_date, end_date=end_date)
+            bot_answer = resp['messages'][-1].content
 
             return result
 
