@@ -7,6 +7,8 @@ from fastapi import APIRouter, File, UploadFile, HTTPException, Response, Cookie
 from pydub import AudioSegment
 import speech_recognition as sr
 
+import google_auth_oauthlib.flow
+
 from langchain_gigachat.chat_models import GigaChat
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.messages import HumanMessage
@@ -15,6 +17,10 @@ from langchain_gigachat.tools.giga_tool import giga_tool
 from pydantic import BaseModel, Field
 import os
 from dotenv import load_dotenv
+
+CLIENT_SECRETS_FILE = "client_secret.json"
+
+SCOPES = ['https://www.googleapis.com/auth/userinfo.email']
 
 router = APIRouter(prefix="/vacation_agent", tags=["Actions"])
 
@@ -82,14 +88,25 @@ agent_executor = create_react_agent(giga_with_functions,
                                            "Если год не указан, то попроси уточнить.",
                                     response_format=ParseResult)
 
-@router.post("/start")
-async def dialog_start(response: Response):
+@router.post("/authorize")
+async def authorize(response: Response):
     thread_id = uuid.uuid4().hex
     config = {"configurable": {"thread_id": thread_id}}
     agent_executor.invoke({"messages": [HumanMessage(content='Привет!')]}, config=config)
     response.set_cookie(key='thread_id', value=thread_id, httponly=True)
     local_storage[thread_id] = None
     return { "thread_id": thread_id }
+
+@router.post("/oauth2")
+async def oauth2(response: Response):
+    flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(CLIENT_SECRETS_FILE, scopes=SCOPES)
+
+    flow.redirect_uri = 'http://vacation.1429773-ct12216.tw1.ru/authorize'
+
+    authorization_url, state = flow.authorization_url(
+        access_type='offline',
+        include_granted_scopes='true')
+    return { "authorization_url": authorization_url }
 
 
 @router.post("/voice_message_upload")

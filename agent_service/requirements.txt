@@ -8,3 +8,5 @@ langchain-gigachat~=0.3.12
 langgraph~=0.6.0
 pydantic~=2.11.7
 python-dotenv~=1.1.1
+google-auth-oauthlib~=1.2.2
+google-api-python-client~=2.177.0
