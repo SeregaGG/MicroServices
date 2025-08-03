@@ -108,7 +108,7 @@ async def authorize(response: Response, query_params: Annotated[GoogleOAuthParam
 async def oauth2(response: Response):
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(CLIENT_SECRETS_FILE, scopes=SCOPES)
 
-    flow.redirect_uri = 'http://vacation.1429773-ct12216.tw1.ru/authorize'
+    flow.redirect_uri = 'https://vacation.1429773-ct12216.tw1.ru/api/v1/vacation_agent/authorize'
 
     authorization_url, state = flow.authorization_url(
         access_type='offline',
