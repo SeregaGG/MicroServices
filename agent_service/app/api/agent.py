@@ -1,9 +1,9 @@
 import io
 import uuid
 from datetime import date
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Annotated
 
-from fastapi import APIRouter, File, UploadFile, HTTPException, Response, Cookie
+from fastapi import APIRouter, File, UploadFile, HTTPException, Response, Cookie, Query
 from pydub import AudioSegment
 import speech_recognition as sr
 
@@ -34,6 +34,13 @@ giga = GigaChat(
 )
 
 local_storage = dict()
+
+class GoogleOAuthParams(BaseModel):
+    state: str = Field()
+    code: str = Field()
+    scope: str = Field()
+    authuser: int = Field()
+    promt: str = Field()
 
 class Vacation(BaseModel):
     start_date: str = Field(description='Начало отпуска строго в формате d.m.y')
@@ -88,9 +95,9 @@ agent_executor = create_react_agent(giga_with_functions,
                                            "Если год не указан, то попроси уточнить.",
                                     response_format=ParseResult)
 
-@router.post("/authorize")
-async def authorize(response: Response):
-    thread_id = uuid.uuid4().hex
+@router.get("/authorize")
+async def authorize(response: Response, query_params: Annotated[GoogleOAuthParams, Query()]):
+    thread_id = query_params.code
     config = {"configurable": {"thread_id": thread_id}}
     agent_executor.invoke({"messages": [HumanMessage(content='Привет!')]}, config=config)
     response.set_cookie(key='thread_id', value=thread_id, httponly=True)
