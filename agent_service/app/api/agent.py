@@ -40,7 +40,7 @@ class GoogleOAuthParams(BaseModel):
     code: str = Field()
     scope: str = Field()
     authuser: int = Field()
-    promt: str = Field()
+    prompt: str = Field()
 
 class Vacation(BaseModel):
     start_date: str = Field(description='Начало отпуска строго в формате d.m.y')
