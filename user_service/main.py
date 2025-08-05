@@ -12,7 +12,8 @@ service_name = os.getenv('SERVICE_NAME')
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.PROJECT_VERSION,
-    openapi_url=f"/{service_name}/{settings.API_V1_STR}/openapi.json",
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    root_path=f'/{service_name}'
 )
 
 app.include_router(users.router, prefix=settings.API_V1_STR)

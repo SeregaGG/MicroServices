@@ -14,6 +14,7 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.PROJECT_VERSION,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    root_path=f'/{service_name}'
 )
 
 app.include_router(agent.router, prefix=settings.API_V1_STR)
