@@ -6,11 +6,17 @@ services:
 
     build: user_service/
 
+    environment:
+      - SERVICE_NAME=user_service
+
     ports:
       - 8000:8000
 
   agent_service:
     build: agent_service/
+
+    environment:
+      - SERVICE_NAME=agent_service
 
     ports:
       - 8001:8000

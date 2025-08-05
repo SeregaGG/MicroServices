@@ -11,7 +11,7 @@ class Settings(BaseModel):
 
     PROJECT_NAME: str = "AgentService"
     PROJECT_VERSION: str = "1.0.0"
-    API_V1_STR: str = "/api/v1"
+    API_V1_STR: str = f"/{os.getenv('SERVICE_NAME')}/api/v1"
 
     JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY")
     JWT_ALGORITHM: str = "HS256"

@@ -22,7 +22,7 @@ CLIENT_SECRETS_FILE = "client_secret.json"
 
 SCOPES = ['https://www.googleapis.com/auth/userinfo.email']
 
-router = APIRouter(prefix="/vacation_agent", tags=["Actions"])
+router = APIRouter(tags=["Actions"])
 
 load_dotenv()
 
@@ -108,7 +108,7 @@ async def authorize(response: Response, query_params: Annotated[GoogleOAuthParam
 async def oauth2(response: Response):
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(CLIENT_SECRETS_FILE, scopes=SCOPES)
 
-    flow.redirect_uri = 'https://vacation.1429773-ct12216.tw1.ru/api/v1/vacation_agent/authorize'
+    flow.redirect_uri = f'https://vacation.1429773-ct12216.tw1.ru/{os.getenv('SERVICE_NAME')}/api/v1/authorize'
 
     authorization_url, state = flow.authorization_url(
         access_type='offline',
