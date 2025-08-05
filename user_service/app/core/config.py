@@ -1,17 +1,15 @@
 import os
 from typing import Optional
 
-from dotenv import load_dotenv
 from pydantic import BaseModel
 
-load_dotenv()
 
 class Settings(BaseModel):
     """Конфигурация приложения."""
 
     PROJECT_NAME: str = "UserService"
     PROJECT_VERSION: str = "1.0.0"
-    API_V1_STR: str = f"/{os.getenv('SERVICE_NAME')}/api/v1"
+    API_V1_STR: str = f"/api/v1"
 
     JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY")
     JWT_ALGORITHM: str = "HS256"

@@ -1,14 +1,8 @@
-import os
-
-from dotenv import load_dotenv
 from fastapi import FastAPI
 
 from app.api import agent
 
 from app.core.config import settings
-
-load_dotenv()
-service_name = os.getenv('SERVICE_NAME')
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
